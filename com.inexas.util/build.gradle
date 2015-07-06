@@ -8,6 +8,7 @@ def PROJECT_VENDOR = 'Inexas'
 def PROJECT_GROUP = 'inexas'
 def PROJECT_VERSION = '0.1.0'
 def PROJECT_DESCRIPTION = 'Inexas utilities'
+def PROJECT_URL = 'http://www.inexas.org'
 
 // Compiler configuration
 def PROJECT_JAVA_VERSION = '1.8'
@@ -129,16 +130,15 @@ uploadArchives {
 			}
 	
 			pom.project {
-				name 'Example Application'
+				name PROJECT_NAME
 				packaging 'jar'
-				// optionally artifactId can be defined here 
-				description 'Some description here.'
-				url 'http://www.example.com/example-application'
+				description PROJECT_DESCRIPTION
+				url PROJECT_URL
 	
 				scm {
-					connection 'scm:svn:http://foo.googlecode.com/svn/trunk/'
-					developerConnection 'scm:svn:https://foo.googlecode.com/svn/trunk/'
-					url 'http://foo.googlecode.com/svn/trunk/'
+					url 'https://github.com/inexas/' + PROJECT_NAME_LOWER
+					connection 'scm:git:git://github.com/inexas/'+ PROJECT_NAME_LOWER + '.git'
+					developerConnection 'scm:git:git@github.com:inexas/'+ PROJECT_NAME_LOWER + '.git'
 				}
 	
 				licenses {
