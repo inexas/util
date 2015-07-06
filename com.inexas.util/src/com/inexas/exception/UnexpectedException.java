@@ -9,6 +9,7 @@ public class UnexpectedException extends InexasRuntimeException {
 
 	/**
 	 * @param message
+	 *            A message describing the cause of the exception.
 	 */
 	public UnexpectedException(String message) {
 		super(message);
@@ -16,7 +17,9 @@ public class UnexpectedException extends InexasRuntimeException {
 
 	/**
 	 * @param message
+	 *            A message describing the cause of the exception.
 	 * @param chainedException
+	 *            The exception that caused this exception to be thrown.
 	 */
 	public UnexpectedException(String message, Exception chainedException) {
 		super(message, chainedException);

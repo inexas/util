@@ -61,6 +61,10 @@ public class StringU {
 	/**
 	 * Process a string so that it can be using in a SQL statement. That is turn
 	 * null into "" and all apostrophes into double apostrophes.
+	 *
+	 * @param input
+	 *            The string to escape.
+	 * @return The escaped string.
 	 */
 	public static String escapeForSql(String input) {
 		final String result;
@@ -177,10 +181,11 @@ public class StringU {
 	}
 
 	/**
-	 * Check for valid name.
+	 * Check for a valid name.
 	 *
 	 * @param candidate
-	 * @return
+	 *            The name to check.
+	 * @return true if the candidate name is valid.
 	 */
 	public static boolean isValidName(String candidate) {
 		return isValidName(candidate, false);
@@ -355,8 +360,8 @@ public class StringU {
 					switch(next) {
 					case '0': // \0 is a null
 						if(sb.length() != 0
-						|| i == length - 1
-						|| ca[++i] != ',') {
+								|| i == length - 1
+								|| ca[++i] != ',') {
 							throw new InexasRuntimeException("Invalid: " + commaDelimitedStrings);
 						}
 						array.add(null);
@@ -403,7 +408,6 @@ public class StringU {
 	 * @param quote
 	 *            Add start and end quotes to the string: ab"cd because "ab\"cd"
 	 * @return null if string was null otherwise escaped and quoted string
-	 * @see
 	 */
 	public static String escape(String string, char quoteChar, boolean quote) {
 		final String result;
@@ -464,7 +468,14 @@ public class StringU {
 	}
 
 	/**
-	 * Convert to "key:classname;key:classname1..." for persistence
+	 * Convert to a map to "key:classname;key:classname1...". Used for
+	 * persistence.
+	 *
+	 * @param map
+	 *            the Map to process.
+	 * @param <T>
+	 *            The type of the Map to stringify.
+	 * @return A stringified version of the map.
 	 */
 	public static <T> String stringify(Map<String, Class<T>> map) {
 		final String result;

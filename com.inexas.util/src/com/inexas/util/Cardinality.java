@@ -17,12 +17,15 @@ public class Cardinality {
 	public final String text;
 
 	/**
-	 * Either from >= 0 and from <= to or runtime exception... Take your pick.
-	 * Using this factory method returns the reusable static objects defined in
-	 * this class so you can "cardinality == Cardinality.ZERO_ONE" for example
+	 * Either from &gt;= 0 and from &lt;= to or runtime exception... Take your
+	 * pick. Using this factory method returns the reusable static objects
+	 * defined in this class so you can "cardinality == Cardinality.ZERO_ONE"
+	 * for example
 	 *
 	 * @param from
+	 *            Minimum value (inclusive).
 	 * @param to
+	 *            Maximum value (inclusive).
 	 * @return the returned value for ..0, 0..1, 0..*, 1..1, 1..* and * will
 	 *         always be return the same physical Object so you can safely use
 	 *         == to check for equality
@@ -59,12 +62,17 @@ public class Cardinality {
 	}
 
 	/**
+	 * Parse a Cardinality from a given string.
 	 *
 	 * @param text
-	 *            I need a string containing a valid integer >= 0, ".." followed
-	 *            by either a '*' or another valid integer >= first integer and
-	 *            no spaces otherwise I'll throw a runtime exception... promise!
+	 *            I need a string containing a valid integer &gt;= 0, ".."
+	 *            followed by either a '*' or another valid integer &gt;= first
+	 *            integer and no spaces otherwise I'll throw a runtime
+	 *            exception... promise!
 	 *
+	 * @return the returned value for ..0, 0..1, 0..*, 1..1, 1..* and * will
+	 *         always be return the same physical Object so you can safely use
+	 *         == to check for equality
 	 * @see #Cardinality(int,int)
 	 */
 	public static Cardinality newInstance(String text) {

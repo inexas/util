@@ -2,9 +2,9 @@ package com.inexas.util;
 
 /**
  * This is a utility class that just holds a couple of objects
- * 
- * @author <a href=mailto:keith@whittingham.com>Keith Whittingham</a>
- * @copyright Keith Whittingham 2000.., All rights reservered.
+ *
+ * @author <a href=mailto:keith@whittingham.com>Keith Whittingham</a> Copyright
+ *         Keith Whittingham 2000.., All rights reserved.
  */
 public class Pair<T1, T2> {
 	private int hashCode;
@@ -13,7 +13,7 @@ public class Pair<T1, T2> {
 
 	/**
 	 * Creates a new Pair
-	 * 
+	 *
 	 * @param object1
 	 *            first object
 	 * @param object2
@@ -54,7 +54,7 @@ public class Pair<T1, T2> {
 			final Pair<T1, T2> rhs = (Pair<T1, T2>)rhsObject;
 			// both lhs and rhs are the same types, check for an exact match...
 			return equal(object1, rhs.object1) && equal(object2, rhs.object2);
-		} catch(ClassCastException e) {
+		} catch(final ClassCastException e) {
 			// not the same types: false...
 			return false;
 		}

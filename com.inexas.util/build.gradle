@@ -20,20 +20,44 @@ apply plugin: 'eclipse-wtp'		// To update Eclipse WTP profile
 apply plugin: 'war'				// To build a war file
 apply plugin: 'jetty'			// To allow it to run on a web server
 apply plugin:'application'		// To add a run task
+apply plugin: 'maven'			// To create the meta data (pom.xml) and take care of moving build to repo
+apply plugin: 'signing'			// Sign the JAR file
 
 defaultTasks 'compileTestJava'	
 
 repositories {
-	flatDir { dirs LocalRepository }
+	flatDir {
+		dirs LocalRepository
+	}
 	mavenCentral()
 }
+
+// Do I need the following???
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+// End ???
 
 group = PROJECT_GROUP
 version = PROJECT_VERSION
 sourceCompatibility = PROJECT_JAVA_VERSION
 description = PROJECT_DESCRIPTION
-
-archivesBaseName = PROJECT_NAME_LOWER
+archivesBaseName = 'com.inexas.' + PROJECT_NAME_LOWER
 
 sourceSets {
 	main {
@@ -62,10 +86,6 @@ test {
 	enableAssertions true
 }
 
-war {
-	webAppDirName = 'WebContent'
-}	
-
 jar {
 	manifest {
 		attributes(
@@ -75,7 +95,8 @@ jar {
 			"Specification-Vendor": PROJECT_VENDOR,
 			"Implementation-Title": PROJECT_DESCRIPTION,
 			"Implementation-Version": PROJECT_VERSION,
-			"Implementation-Vendor": PROJECT_VENDOR)
+			"Implementation-Vendor": PROJECT_VENDOR
+		)
 	}
 }
 
@@ -85,10 +106,56 @@ dependencies {
 	compile 'com.google.code.gson:gson:2.3.1'
 }
 
+
 uploadArchives {
 	repositories {
-	   flatDir {
-		   dirs 'repos'
-	   }
+		flatDir {
+			dirs 'repos'
+		}
+
+		mavenDeployer {
+			beforeDeployment {
+				MavenDeployment deployment -> signing.signPom(deployment)
+			}
+	
+			// See ~/.gradle/gradle.properties for ossUsername & ossPassword
+			
+			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+				authentication(userName: ossUsername, password: ossPassword)
+			}
+	
+			snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+				authentication(userName: ossUsername, password: ossPassword)
+			}
+	
+			pom.project {
+				name 'Example Application'
+				packaging 'jar'
+				// optionally artifactId can be defined here 
+				description 'Some description here.'
+				url 'http://www.example.com/example-application'
+	
+				scm {
+					connection 'scm:svn:http://foo.googlecode.com/svn/trunk/'
+					developerConnection 'scm:svn:https://foo.googlecode.com/svn/trunk/'
+					url 'http://foo.googlecode.com/svn/trunk/'
+				}
+	
+				licenses {
+					license {
+						name 'The Apache License, Version 2.0'
+						url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+					}
+				}
+	
+				developers {
+					developer {
+						id 'kwhittingham'
+						name 'Keith Whittingham'
+						email 'kwhittingham@gmail.com'
+					}
+				}
+			}
+		}
 	}
 }

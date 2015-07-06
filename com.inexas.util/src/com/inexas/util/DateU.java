@@ -43,6 +43,10 @@ public class DateU {
 	}
 
 	/**
+	 * Format a given data in standard format.
+	 *
+	 * @param date
+	 *            The date to format.
 	 * @return yyyy/MM/dd HH:mm:ss
 	 */
 	public static String formatDateTimeStandard(Date date) {
@@ -50,8 +54,11 @@ public class DateU {
 	}
 
 	/**
+	 * Parse a date in standard format.
+	 *
 	 * @param date
-	 *            yyyy/MM/dd HH:mm:ss
+	 *            A date in the format "yyyy/MM/dd HH:mm:ss".
+	 * @return The parsed date.
 	 */
 	public static Date parseDateTimeStandard(String date) {
 		try {
@@ -91,7 +98,8 @@ public class DateU {
 	 * 'Intelligent' date/time parser. does best guess as the input format
 	 *
 	 * @param string
-	 * @return
+	 *            The string to parse.
+	 * @return The parsed date.
 	 */
 	public static Date toDate(String string) {
 		int whichFormatter = 0;

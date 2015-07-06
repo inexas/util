@@ -5,10 +5,12 @@ import java.util.*;
 import java.util.jar.*;
 
 /**
+ * <p>
  * This class allows a set of property files to be used like resource bundles
  * for SQL or other similar applications where there are several dialects or
- * versions of a single dialect. An example is worth a thousand words:</p>
- * 
+ * versions of a single dialect. An example is worth a thousand words:
+ * </p>
+ *
  * <pre>
  * sql.properties====
  * # one might expect an SQL 92 definition here
@@ -21,12 +23,12 @@ import java.util.jar.*;
  * select=SELECT * FROM DB2TAB
  * ==================
  * </pre>
- * 
+ *
  * An application would construct a TextBundle using "sql_db2" as the name. On
  * loading the properties file this class would discover that a predecessor
  * existed and load that. The property files are used in the load order to
  * service requests.
- * 
+ *
  * @author Keith Whittingham
  * @version $Revision: 1.1 $
  */
@@ -41,7 +43,7 @@ public class TextBundle extends Properties {
 	 * directory structure. E.g. a base name of config/ab_cd_ef will cause a
 	 * search of config/ab.properties, config/ab_cd.properties and
 	 * config/ab_cd_ef.properties to be searched for and loaded if present.
-	 * 
+	 *
 	 * @param baseName
 	 *            the base name of the text bundle
 	 */
@@ -73,7 +75,7 @@ public class TextBundle extends Properties {
 					throw new RuntimeException("No text bundle for filename: " + filename, e);
 				}
 				// ignore files not found...
-			} catch(IOException e) {
+			} catch(final IOException e) {
 				throw new RuntimeException("Error loading file: " + filename, e);
 			}
 		}
@@ -85,7 +87,7 @@ public class TextBundle extends Properties {
 	 * in a similar way to language resource bundles. If the name is
 	 * "config/abc_def_ghi" is passed then we attempt to load three properties
 	 * files: abc.properties, abc_def.properties and abc_def_ghi. properties.
-	 * 
+	 *
 	 * @param jarFilename
 	 *            the name of the JAR file to read
 	 * @param baseName
@@ -110,9 +112,9 @@ public class TextBundle extends Properties {
 						final List<JarEntry> jarEntries = new ArrayList<>();
 						final Iterator<String> i = generateFilenames(baseName).iterator();
 						while(i.hasNext()) {
-							String filename = i.next();
+							final String filename = i.next();
 							// try and load the properties file for this one...
-							JarEntry je = jf.getJarEntry(filename);
+							final JarEntry je = jf.getJarEntry(filename);
 							if(je != null) {
 								jarEntries.add(je);
 							}
@@ -166,11 +168,11 @@ public class TextBundle extends Properties {
 				final ResourceBundle rb = ResourceBundle.getBundle(baseName);
 				final Enumeration<String> en = rb.getKeys();
 				while(en.hasMoreElements()) {
-					String key = en.nextElement();
+					final String key = en.nextElement();
 					this.put(key, rb.getString(key));
 				}
 			}
-		} catch(IOException e) {
+		} catch(final IOException e) {
 			throw new RuntimeException("Error accessing JAR file: " + jarFilename, e);
 		}
 	}
@@ -181,7 +183,7 @@ public class TextBundle extends Properties {
 
 	/**
 	 * Get a string from the bundle given a key
-	 * 
+	 *
 	 * @param key
 	 *            the key of the string
 	 * @return the string matching the given key
@@ -197,21 +199,21 @@ public class TextBundle extends Properties {
 	}
 
 	/**
-	 * Get a string from the bundle given a key
-	 * 
-	 * @param form
-	 *            the key of the string
+	 * Get a string from the bundle given a key.
+	 *
+	 * @param key
+	 *            The key of the string to retrieve.
 	 * @param parameters
-	 *            key/value pairs like ..., "{Name}", "Keith"
-	 * @return the string matching the given key
+	 *            Key/value pairs like ..., "{Name}", "Keith"
+	 * @return The string matching the given key.
 	 * @exception RuntimeException
-	 *                if no string for the key is found
+	 *                If no string for the key is found.
 	 */
-	public String get(String sqlKey, String... parameters) {
+	public String get(String key, String... parameters) {
 		assert parameters.length > 0 && parameters.length % 2 == 0 : "Next 2, 4, 6... parameters";
-		assert parametersExist(sqlKey, parameters);
+		assert parametersExist(key, parameters);
 
-		String result = getString(sqlKey);
+		String result = getString(key);
 		for(int i = 0; i < parameters.length;) {
 			final String name = parameters[i++];
 			final String value = parameters[i++];
@@ -253,12 +255,12 @@ public class TextBundle extends Properties {
 	}
 
 	private List<String> generateFilenames(String theBaseName) {
-		List<String> list = new ArrayList<>();
+		final List<String> list = new ArrayList<>();
 		// split up the baseName into path and filename and tokenize the
 		// latter...
-		int slash = theBaseName.lastIndexOf('\\');
-		int backSlash = theBaseName.lastIndexOf('/');
-		int pathLength = 1 + slash > backSlash ? slash : backSlash;
+		final int slash = theBaseName.lastIndexOf('\\');
+		final int backSlash = theBaseName.lastIndexOf('/');
+		final int pathLength = 1 + slash > backSlash ? slash : backSlash;
 		String path, filename;
 		if(pathLength == -1) {
 			path = "";
@@ -267,7 +269,7 @@ public class TextBundle extends Properties {
 			path = theBaseName.substring(0, pathLength);
 			filename = theBaseName.substring(pathLength);
 		}
-		StringTokenizer st = new StringTokenizer(filename, "_");
+		final StringTokenizer st = new StringTokenizer(filename, "_");
 
 		String name = path + st.nextToken();
 		list.add(name + ".properties");
@@ -281,7 +283,7 @@ public class TextBundle extends Properties {
 	/**
 	 * This method checks that there is at least one occurrence of each
 	 * parameter in the string. It is only called by an assert so take our time
-	 * 
+	 *
 	 * @param sql
 	 * @param parameters
 	 * @return true if all is well

@@ -105,12 +105,14 @@ public class JsonUtilities {
 	 * visitor will be called twice
 	 *
 	 * @param key
-	 *            the key of the child array
+	 *            The key of the child array.
 	 * @param visitor
-	 *            the visitor to call
+	 *            The visitor to call.
+	 * @param <T>
+	 *            The type of the node being visited.
 	 * @throws JsonException
-	 *             thrown on any JSON syntax errors
-	 * @returns the root element
+	 *             Thrown on any JSON syntax errors.
+	 * @return The root element.
 	 */
 	public <T> T visit(String key, Visitor<T> visitor) throws JsonException {
 		return visit(key, (T)null, visitor);

@@ -23,6 +23,14 @@ public class ReflectionU {
 	/**
 	 * Create a String version of a method name. This is useful for messages in
 	 * thrown exceptions for example.
+	 *
+	 * @param clazz
+	 *            The class in which the method should appear.
+	 * @param methodName
+	 *            The name of the method in question.
+	 * @param parameterTypes
+	 *            The list of parameter types.
+	 * @return The fully qualified name of the method.
 	 */
 	public static String toMethodName(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
 		final TextBuilder sb = new TextBuilder(clazz.getCanonicalName());
@@ -60,7 +68,7 @@ public class ReflectionU {
 	 * This method improves upon the Class.getMethod sibling by being more
 	 * flexible with the types. If you look for myMethod(Long) it will find
 	 * myMethod(long) for example.
-	 * 
+	 *
 	 * The key differences are:
 	 * <ul>
 	 * <li>Primitive data types and their object equivalents will be both
@@ -71,15 +79,15 @@ public class ReflectionU {
 	 * </ul>
 	 * A weighting system is used to return the best match. This is not an exact
 	 * science.
-	 * 
+	 *
 	 * What's not handled (yet)
 	 * <ul>
-	 * <li>Type conversion: int -> long</li>
+	 * <li>Type conversion: int -&gt; long</li>
 	 * <li>Constructors</li>
 	 * <li>Arrays</li>
 	 * <li>Collection classes</li>
-	 * </ul
-	 * 
+	 * </ul>
+	 *
 	 * @param clazz
 	 *            the class in which to search for the method
 	 * @param methodName
@@ -88,10 +96,10 @@ public class ReflectionU {
 	 *            an array of Class objects that identify the method's formal
 	 *            parameter types, in declared order. If parameterTypes is null,
 	 *            it is treated as if it were an empty array.
-	 * @return
+	 * @return The retrieved Method.
 	 * @throws NoSuchMethodException
 	 *             if a matching method is not found or if the name is
-	 *             "<init>"or "<clinit>".
+	 *             "&lt;init&gt;"or "&lt;clinit&gt;".
 	 * @throws SecurityException
 	 *             the caller's class loader is not the same as or an ancestor
 	 *             of the class loader for the current class and invocation of
@@ -251,7 +259,20 @@ public class ReflectionU {
 	}
 
 	/**
-	 * This won't work with null parameters
+	 * A convenience method to invoke a method give the object, method name and
+	 * a list of parameters.
+	 *
+	 * Note that this won't work with null parameters.
+	 *
+	 * @param <T>
+	 *            The type of the object returned by the invocation.
+	 * @param object
+	 *            The object on which to call the method.
+	 * @param methodName
+	 *            The name of the method to call.
+	 * @param parameters
+	 *            The parameters to pass.
+	 * @return The value return by the invocation.
 	 */
 	public static <T> T invoke(Object object, String methodName, Object... parameters) {
 		// Get the parameter types...

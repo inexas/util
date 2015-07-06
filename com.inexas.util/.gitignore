@@ -38,6 +38,7 @@ Thumbs.db
 /srcgen/
 /.gradle/
 /gradle/
+/repos/
 build
 bin
 
