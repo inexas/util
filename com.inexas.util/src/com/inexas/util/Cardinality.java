@@ -18,6 +18,8 @@ public class Cardinality {
 
 	/**
 	 * Either from >= 0 and from <= to or runtime exception... Take your pick.
+	 * Using this factory method returns the reusable static objects defined in
+	 * this class so you can "cardinality == Cardinality.ZERO_ONE" for example
 	 *
 	 * @param from
 	 * @param to
