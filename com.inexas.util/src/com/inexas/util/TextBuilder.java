@@ -25,7 +25,7 @@ public class TextBuilder implements CharSequence {
 
 	/**
 	 * Construct a pretty TextBuilder
-	 * 
+	 *
 	 * @see #TextBuilder(boolean)
 	 */
 	public TextBuilder() {
@@ -85,6 +85,18 @@ public class TextBuilder implements CharSequence {
 				throw new ArrayIndexOutOfBoundsException();
 			}
 		}
+	}
+
+	/**
+	 * This is the same as indent(), append(text), newline();
+	 *
+	 * @param text
+	 *            Text to write.
+	 */
+	public void writeline(String text) {
+		indent();
+		append(text);
+		newline();
 	}
 
 	public void append(char c) {
@@ -184,7 +196,7 @@ public class TextBuilder implements CharSequence {
 
 	/**
 	 * Set the delimiters to be used.
-	 * 
+	 *
 	 * @param compactDelimiter
 	 *            By default this is ','. A value of (char)0 will force the
 	 *            String delimiter to be used

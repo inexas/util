@@ -696,4 +696,45 @@ public class StringU {
 		return result;
 	}
 
+	/**
+	 * Process the string so that it can appear in Java code. The string should
+	 * not include quotes so to process "a" string should have a length of 1.
+	 *
+	 * @param string
+	 *            The string to process, may be null or empty string.
+	 * @return For null return "null", for other strings convert "\n" to "\\n",
+	 *         etc.
+	 */
+	public static String toJavaString(String string) {
+		final String result;
+
+		if(string == null) {
+			result = "null";
+		} else {
+			final TextBuilder tb = new TextBuilder();
+			final char[] ca = string.toCharArray();
+			for(final char c : ca) {
+				switch(c) {
+				case '\r':
+					// Discard
+					break;
+				case '\n':
+					tb.append("\\n");
+					break;
+				case '\t':
+					tb.append("\\t");
+					break;
+				case '"':
+					tb.append("\\\"");
+					break;
+				default:
+					tb.append(c);
+					break;
+				}
+			}
+			result = tb.toString();
+		}
+
+		return result;
+	}
 }

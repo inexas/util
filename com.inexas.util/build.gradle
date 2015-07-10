@@ -1,31 +1,41 @@
 /**
- * build.gradle
+ * build.gradle for util (Inexas utilities)
  */
+
+// I n c l u d e   p l u g i n s
+
+apply plugin: 'eclipse'				// To be able to create an Eclipse project
+apply plugin: 'java'
+apply plugin: 'project-report'		// For lots of reports .../build/reports/project/
+									// Gradle info, see  dependencies, properties, tasks
+apply plugin: 'maven'				// Build pom.xml, move artifacts to OSS
+apply plugin: 'signing'				// Sign JAR files
+
+// D e f i n e   u s e f u l   c o n s t a n t s
 
 def PROJECT_NAME = 'Utilities'
 def PROJECT_NAME_LOWER = 'util'
 def PROJECT_VENDOR = 'Inexas'
-def PROJECT_GROUP = 'inexas'
-def PROJECT_VERSION = '0.1.0'
+def PROJECT_GROUP = 'com.inexas'
+def PROJECT_VERSION = '0.1.1'
 def PROJECT_DESCRIPTION = 'Inexas utilities'
 def PROJECT_URL = 'http://www.inexas.org'
-
-// Compiler configuration
 def PROJECT_JAVA_VERSION = '1.8'
 
-apply plugin: 'java'
-// Gradle info, see .../build/reports/project/ dependencies, properties, tasks
-apply plugin: 'project-report'	// For lots of reports
-apply plugin: 'eclipse'			// To be able to create an Eclipse project
-apply plugin: 'eclipse-wtp'		// To update Eclipse WTP profile
-apply plugin: 'war'				// To build a war file
-apply plugin: 'jetty'			// To allow it to run on a web server
-apply plugin:'application'		// To add a run task
-apply plugin: 'maven'			// To create the meta data (pom.xml) and take care of moving build to repo
-apply plugin: 'signing'			// Sign the JAR file
+group = PROJECT_GROUP
+version = PROJECT_VERSION
+description = PROJECT_DESCRIPTION
+sourceCompatibility = PROJECT_JAVA_VERSION
+archivesBaseName = PROJECT_NAME_LOWER
 
-defaultTasks 'compileTestJava'	
+// todo This should really be in a private gradle.properties for this project
+defaultTasks 'tasks'	
 
+test {
+	enableAssertions true
+}
+
+// Define where Gradle should look for libraries
 repositories {
 	flatDir {
 		dirs LocalRepository
@@ -33,7 +43,6 @@ repositories {
 	mavenCentral()
 }
 
-// Do I need the following???
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
@@ -52,14 +61,6 @@ signing {
     sign configurations.archives
 }
 
-// End ???
-
-group = PROJECT_GROUP
-version = PROJECT_VERSION
-sourceCompatibility = PROJECT_JAVA_VERSION
-description = PROJECT_DESCRIPTION
-archivesBaseName = 'com.inexas.' + PROJECT_NAME_LOWER
-
 sourceSets {
 	main {
 		java {
@@ -77,14 +78,6 @@ sourceSets {
 			srcDir 'resourcestest'
 		}
 	}
-}
-
-// Application task...
-mainClassName = "hello.HelloWorld"   
-//applicationDefaultJvmArgs = ["-Dgreeting.language=en"]
-
-test {
-	enableAssertions true
 }
 
 jar {
@@ -110,10 +103,6 @@ dependencies {
 
 uploadArchives {
 	repositories {
-		flatDir {
-			dirs 'repos'
-		}
-
 		mavenDeployer {
 			beforeDeployment {
 				MavenDeployment deployment -> signing.signPom(deployment)

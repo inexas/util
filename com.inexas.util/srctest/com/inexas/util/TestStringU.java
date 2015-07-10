@@ -72,4 +72,12 @@ public class TestStringU {
 		doToAndFromStringArrayTest("a\\,b,c");
 		doToAndFromStringArrayTest("a\\\\b,c");
 	}
+
+	@Test
+	public void testToJavaString() {
+		assertEquals("null", StringU.toJavaString(null));
+		assertEquals("", StringU.toJavaString(""));
+		assertEquals("asdf", StringU.toJavaString("asdf"));
+		assertEquals("\\n\\t\\\"", StringU.toJavaString("\n\r\t\""));
+	}
 }

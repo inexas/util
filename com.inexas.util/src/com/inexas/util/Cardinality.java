@@ -1,11 +1,22 @@
 package com.inexas.util;
 
-import com.inexas.exception.InexasRuntimeException;
 
 /**
  * Cardinality
  */
 public class Cardinality {
+	public static class Exception extends RuntimeException {
+		private static final long serialVersionUID = 9143810214317430459L;
+
+		public Exception(String message) {
+			super(message);
+		}
+
+		public Exception(String message, java.lang.Exception e) {
+			super(message, e);
+		}
+	}
+
 	public static final int MANY = Integer.MAX_VALUE;
 	public static final Cardinality ZERO = new Cardinality(0, 0);
 	public static final Cardinality ZERO_ONE = new Cardinality(0, 1);
@@ -29,11 +40,13 @@ public class Cardinality {
 	 * @return the returned value for ..0, 0..1, 0..*, 1..1, 1..* and * will
 	 *         always be return the same physical Object so you can safely use
 	 *         == to check for equality
+	 * @throws Exception
+	 *             Thrown if 'from' and 'to' don't make sense in some way.
 	 */
-	public static Cardinality newInstance(int from, int to) {
+	public static Cardinality newInstance(int from, int to) throws Exception {
 		final Cardinality result;
 		if(from < 0 || from > to) {
-			throw new InexasRuntimeException("Invalid cardinality: '" + from + ".." + to + '\'');
+			throw new Exception("Invalid cardinality: '" + from + ".." + to + '\'');
 		}
 
 		if(from == 0) {
@@ -73,13 +86,15 @@ public class Cardinality {
 	 * @return the returned value for ..0, 0..1, 0..*, 1..1, 1..* and * will
 	 *         always be return the same physical Object so you can safely use
 	 *         == to check for equality
+	 * @throws Exception
+	 *             Thrown of the text can't be parsed.
 	 * @see #Cardinality(int,int)
 	 */
-	public static Cardinality newInstance(String text) {
+	public static Cardinality newInstance(String text) throws Exception {
 		final int from, to;
 
 		if(text == null) {
-			throw new InexasRuntimeException("Invalid cardinality: null");
+			throw new Exception("Invalid cardinality: null");
 		}
 
 		if("*".equals(text)) {
@@ -88,7 +103,7 @@ public class Cardinality {
 		} else {
 			final int dots = text.indexOf("..");
 			if(dots < 1) {
-				throw new InexasRuntimeException("Invalid cardinality: '" + text + '\'');
+				throw new Exception("Invalid cardinality: '" + text + '\'');
 			}
 
 			try {
@@ -97,7 +112,7 @@ public class Cardinality {
 				final String toText = text.substring(dots + 2);
 				to = "*".equals(toText) ? MANY : Integer.parseInt(toText);
 			} catch(final NumberFormatException e) {
-				throw new InexasRuntimeException("Invalid cardinality: '" + text + '\'', e);
+				throw new Exception("Invalid cardinality: '" + text + '\'', e);
 			}
 		}
 

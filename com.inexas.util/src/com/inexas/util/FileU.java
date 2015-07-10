@@ -13,9 +13,9 @@ public class FileU {
 		BOTH;
 	}
 
-	public final static String ROOT = getCurrentWorkingDirectory();
-	public final static String DATA = ROOT + "/data/";
-	public final static String DATATEST = ROOT + "/datatest/";
+	public final static String ROOT = getCurrentWorkingDirectory() + '/';
+	public final static String DATA = ROOT + "data/";
+	public final static String DATATEST = ROOT + "datatest/";
 
 	public static char[] readToCharacterArray(File file) {
 		final char[] result;

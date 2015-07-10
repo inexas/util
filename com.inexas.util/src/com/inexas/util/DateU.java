@@ -1,6 +1,7 @@
 package com.inexas.util;
 
 import java.text.*;
+import java.time.*;
 import java.util.Date;
 import com.inexas.exception.InexasRuntimeException;
 
@@ -43,7 +44,7 @@ public class DateU {
 	}
 
 	/**
-	 * Format a given data in standard format.
+	 * Format a given date in standard format.
 	 *
 	 * @param date
 	 *            The date to format.
@@ -161,6 +162,39 @@ public class DateU {
 
 	public static String formatTimeSql(Date value) {
 		return sqlTime.format(value);
+	}
+
+	/**
+	 * Format a given date in standard format.
+	 *
+	 * @param date
+	 *            The date to format.
+	 * @return A string formatted in the the pattern: "yyyy/MM/dd"
+	 */
+	public static String format(LocalDate date) {
+		return standardDate.format(date);
+	}
+
+	/**
+	 * Format a given time in standard format.
+	 *
+	 * @param time
+	 *            The date to format.
+	 * @return A string formatted in the the pattern: "HH:mm:ss"
+	 */
+	public static String format(LocalTime time) {
+		return standardTime.format(time);
+	}
+
+	/**
+	 * Format a given date/time in standard format.
+	 *
+	 * @param dateTime
+	 *            The date/time to format.
+	 * @return A string formatted in the the pattern: "yyyy/MM/dd HH:mm:ss"
+	 */
+	public static String format(LocalDateTime dateTime) {
+		return standardDateTime.format(dateTime);
 	}
 
 }
