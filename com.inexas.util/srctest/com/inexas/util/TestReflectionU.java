@@ -4,7 +4,6 @@ import static com.inexas.util.ReflectionU.*;
 import static org.junit.Assert.assertEquals;
 import java.lang.reflect.Method;
 import org.junit.Test;
-import com.inexas.exception.InexasRuntimeException;
 
 // todo Return values
 public class TestReflectionU {
@@ -65,7 +64,7 @@ public class TestReflectionU {
 			intC = C.class.getDeclaredMethod("test", int.class, C.class);
 			intSubC = C.class.getDeclaredMethod("test", int.class, SubC.class);
 		} catch(final Exception e) {
-			throw new InexasRuntimeException("Error setting up tests", e);
+			throw new RuntimeException("Error setting up tests", e);
 		}
 	}
 

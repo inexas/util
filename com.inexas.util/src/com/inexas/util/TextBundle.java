@@ -157,7 +157,7 @@ public class TextBundle extends Properties {
 				// } catch (FileNotFoundException e) {
 				// // ignore files not found...
 				// } catch (IOException e) {
-				// throw new InexasRuntimeException("Error loading file: " +
+				// throw new RuntimeException("Error loading file: " +
 				// filename, e);
 				// }
 				// }

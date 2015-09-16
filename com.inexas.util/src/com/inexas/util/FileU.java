@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.zip.*;
-import com.inexas.exception.*;
+import com.inexas.exception.ShouldNotBeCalledException;
 
 public class FileU {
 	public static enum Type {
@@ -33,7 +33,7 @@ public class FileU {
 				result = ca;
 			}
 		} catch(final Exception e) {
-			throw new InexasRuntimeException("Error reading file: " +
+			throw new RuntimeException("Error reading file: " +
 					file.getAbsolutePath(), e);
 		}
 
@@ -63,15 +63,22 @@ public class FileU {
 			}
 
 		} catch(final Exception e) {
-			throw new InexasRuntimeException(
+			throw new RuntimeException(
 					"Error reading file: " +
 							file.getAbsolutePath(), e);
 		}
 		return result;
 	}
 
+	/**
+	 * @param subPath
+	 *            A relative sub-path, e.g my/data.
+	 * @return A File generated from the user.dir plus a given relative
+	 *         sub-path.
+	 */
 	public static File getHome(String subPath) {
-		final String path = System.getProperty("user.dir") + subPath;
+		assert !subPath.startsWith("/") : "Should be relative path: " + subPath;
+		final String path = System.getProperty("user.dir") + '/' + subPath;
 		return new File(path);
 	}
 
@@ -134,7 +141,7 @@ public class FileU {
 		try {
 			pattern = Pattern.compile(regexp);
 		} catch(final Exception e) {
-			throw new InexasRuntimeException("Error parsing pattern", e);
+			throw new RuntimeException("Error parsing pattern", e);
 		}
 		final String classPath = System.getProperty("java.class.path", ".");
 		final String[] classPathElements = classPath.split(":");
@@ -175,7 +182,7 @@ public class FileU {
 				}
 			}
 		} catch(final Exception e) {
-			throw new InexasRuntimeException("Error reading JAR file", e);
+			throw new RuntimeException("Error reading JAR file", e);
 		}
 
 		return result;
@@ -198,7 +205,7 @@ public class FileU {
 						result.add(fileName);
 					}
 				} catch(final IOException e) {
-					throw new InexasRuntimeException("Error reading directory", e);
+					throw new RuntimeException("Error reading directory", e);
 				}
 			}
 		}
@@ -210,7 +217,7 @@ public class FileU {
 			final File currentWorkingDirectory = new File(".");
 			return currentWorkingDirectory.getCanonicalPath();
 		} catch(final IOException e) {
-			throw new InexasRuntimeException("Error getting current directory", e);
+			throw new RuntimeException("Error getting current directory", e);
 		}
 	}
 

@@ -1,6 +1,6 @@
 package com.inexas.exception;
 
-public class ShouldNotBeCalledException extends InexasRuntimeException {
+public class ShouldNotBeCalledException extends RuntimeException {
 	private static final long serialVersionUID = 4157984141609529672L;
 
 	public ShouldNotBeCalledException() {

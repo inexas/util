@@ -1,6 +1,5 @@
 package com.inexas.util;
 
-
 /**
  * Cardinality
  */
@@ -159,9 +158,13 @@ public class Cardinality {
 		return text;
 	}
 
-	public void toMarkup(TextBuilder result, String indent) {
-		result.append(indent);
+	public void toString(TextBuilder result) {
+		result.indent();
+		result.append("cardinality");
+		result.space();
 		result.append(text);
+		result.append(';');
+		result.newline();
 	}
 
 }

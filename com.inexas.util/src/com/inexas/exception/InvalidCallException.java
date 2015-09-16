@@ -1,6 +1,6 @@
 package com.inexas.exception;
 
-public class InvalidCallException extends InexasRuntimeException {
+public class InvalidCallException extends RuntimeException {
 	private static final long serialVersionUID = 1545342949997750093L;
 
 	public InvalidCallException() {

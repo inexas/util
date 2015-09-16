@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import com.google.gson.Gson;
-import com.inexas.exception.*;
+import com.inexas.exception.UnexpectedException;
 import com.inexas.util.ReflectionU.ReflectException;
 
 public class StringU {
@@ -112,7 +112,7 @@ public class StringU {
 			}
 			return result;
 		} catch(final NoSuchAlgorithmException e) {
-			throw new InexasRuntimeException("Error making MD5", e);
+			throw new RuntimeException("Error making MD5", e);
 		}
 	}
 
@@ -160,8 +160,63 @@ public class StringU {
 		return new String(pw);
 	}
 
-	public static String removeQuotes(String string) {
+	/**
+	 * Remove quotes from a string.
+	 *
+	 * @param string
+	 *            The string to process. Cannot be null.
+	 * @param quoteChars
+	 *            Type of quotes to remove. Default is double quotes. You can
+	 *            specify one several of ", ' or `. The type of quotes must be
+	 *            the same.
+	 * @return The unquoted string.
+	 * @throws RuntimeException
+	 *             if the string is null or has not quotes.
+	 */
+	public static String removeQuotes(String string, char... quoteChars) {
+		if(string == null || hasQuotes(string, quoteChars)) {
+			throw new RuntimeException("String has no quotes: " + string);
+		}
 		return string.substring(1, string.length() - 1);
+	}
+
+	/**
+	 * @param string
+	 *            String to check
+	 * @param quoteChars
+	 * @return
+	 */
+	public static boolean hasQuotes(String string, char[] quoteChars) {
+		boolean result;
+
+		assert string != null;
+
+		final int length = string.length();
+		if(length < 2) {
+			result = false;
+		} else {
+			final char first = string.charAt(0);
+			final char last = string.charAt(length - 1);
+			if(first == last) {
+				final int quotes = quoteChars.length;
+				if(quotes == 0) {
+					result = first == '"';
+				} else {
+					result = false;
+					for(final char quote : quoteChars) {
+						if(first == quote) {
+							result = true;
+							break;
+						}
+					}
+				}
+			} else {
+				// ?todo Could also strip [], etc.
+				result = false;
+			}
+		}
+
+		return result;
 	}
 
 	private final static boolean[] validNameChars = validNameChars();
@@ -345,7 +400,7 @@ public class StringU {
 			result = null;
 		} else {
 			final List<String> array = new ArrayList<>();
-			final TextBuilder sb = new TextBuilder();
+			final TextBuilder tb = new TextBuilder();
 			final char[] ca = commaDelimitedStrings.toCharArray();
 			final int length = ca.length;
 			for(int i = 0; i < length; i++) {
@@ -354,40 +409,40 @@ public class StringU {
 				case '\\': // Escape
 					if(i == length - 1) {
 						// No next character
-						throw new InexasRuntimeException("Invalid: " + commaDelimitedStrings);
+						throw new RuntimeException("Invalid: " + commaDelimitedStrings);
 					}
 					final char next = ca[++i];
 					switch(next) {
 					case '0': // \0 is a null
-						if(sb.length() != 0
-								|| i == length - 1
-								|| ca[++i] != ',') {
-							throw new InexasRuntimeException("Invalid: " + commaDelimitedStrings);
+						if(tb.length() != 0
+						|| i == length - 1
+						|| ca[++i] != ',') {
+							throw new RuntimeException("Invalid: " + commaDelimitedStrings);
 						}
 						array.add(null);
 						break;
 
 					case ',':
 					case '\\':
-						sb.append(next);
+						tb.append(next);
 						break;
 
 					default:
-						throw new InexasRuntimeException("Invalid: " + commaDelimitedStrings);
+						throw new RuntimeException("Invalid: " + commaDelimitedStrings);
 					}
 					break;
 
 				case ',':
-					array.add(sb.toString());
-					sb.setLength(0);
+					array.add(tb.toString());
+					tb.recycle();
 					break;
 
 				default:
-					sb.append(c);
+					tb.append(c);
 					break;
 				}
 			}
-			array.add(sb.toString());
+			array.add(tb.toString());
 			result = array.toArray(new String[array.size()]);
 		}
 		return result;
@@ -447,7 +502,7 @@ public class StringU {
 				start = 1;
 				length = ca.length - 2;
 				if(length < 0 || ca[0] != quoteChar || ca[length + 1] != quoteChar) {
-					throw new InexasRuntimeException("Invalid string: " + string);
+					throw new RuntimeException("Invalid string: " + string);
 				}
 			} else {
 				start = 0;
@@ -529,7 +584,7 @@ public class StringU {
 				final Class<T> clazz = ReflectionU.getClass(name, type);
 				result.put(key.toString(), clazz);
 			} catch(final ReflectException e) {
-				throw new InexasRuntimeException("Error loading", e);
+				throw new RuntimeException("Error loading", e);
 			}
 		}
 		return result;
@@ -633,7 +688,7 @@ public class StringU {
 			return new Pair<>(key, value);
 		} catch(final Exception e) {
 			final String first100 = string.substring(0, Math.min(100, string.length()));
-			throw new InexasRuntimeException("Error deserializing JSON: " + first100, e);
+			throw new RuntimeException("Error deserializing JSON: " + first100, e);
 		}
 	}
 
@@ -737,4 +792,5 @@ public class StringU {
 
 		return result;
 	}
+
 }

@@ -2,7 +2,6 @@ package com.inexas.util;
 
 import java.lang.reflect.Method;
 import java.util.*;
-import com.inexas.exception.*;
 
 public class ReflectionU {
 	private static class Candidate implements Comparable<Candidate> {
@@ -227,7 +226,7 @@ public class ReflectionU {
 		}
 	}
 
-	public static class ReflectException extends InexasException {
+	public static class ReflectException extends Exception {
 		private static final long serialVersionUID = -1819281382298181464L;
 
 		public ReflectException(String message) {
@@ -290,7 +289,7 @@ public class ReflectionU {
 			final T result = (T)method.invoke(object, parameters);
 			return result;
 		} catch(final Exception e) {
-			throw new InexasRuntimeException("Error invoking method", e);
+			throw new RuntimeException("Error invoking method", e);
 		}
 	}
 }
