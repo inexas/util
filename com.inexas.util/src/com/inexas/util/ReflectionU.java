@@ -32,7 +32,7 @@ public class ReflectionU {
 	 * @return The fully qualified name of the method.
 	 */
 	public static String toMethodName(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
-		final TextBuilder sb = new TextBuilder(clazz.getCanonicalName());
+		final Text sb = new Text(clazz.getCanonicalName());
 
 		sb.append('.');
 		sb.append(methodName);

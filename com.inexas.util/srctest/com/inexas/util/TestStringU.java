@@ -11,7 +11,7 @@ public class TestStringU {
 		if(strings == null) {
 			got = null;
 		} else {
-			final TextBuilder sb = new TextBuilder();
+			final Text sb = new Text();
 			boolean delimit = false;
 			for(final String string : strings) {
 				if(delimit) {

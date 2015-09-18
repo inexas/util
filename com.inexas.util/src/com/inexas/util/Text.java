@@ -6,37 +6,38 @@ import java.util.Arrays;
  * Very (expletive deleted) annoyingly StringBuilder is final so we can't extend
  * it to add the 'pretty' functionality.
  */
-public class TextBuilder implements CharSequence {
+public class Text implements CharSequence {
 	private final static int maxLineLength = 132;
 	public static final char EOF = (char)-1;
 	public final boolean pretty;
-	private final TextBuilder indent;
+	private final Text indent;
 	private char[] buffer = new char[16];
 	private int bufferCapacity;
 	private int index;
 	private int lastNewline;
+	private int start;
 	private char compactDelimiter = ',';
 	private String prettyDelimiter = ", ";
 	private boolean delimit;
 
-	public TextBuilder(String string) {
+	public Text(String string) {
 		this(true);
 		append(string);
 	}
 
 	/**
-	 * Construct a pretty TextBuilder
+	 * Construct a pretty Text
 	 *
-	 * @see #TextBuilder(boolean)
+	 * @see #Text(boolean)
 	 */
-	public TextBuilder() {
+	public Text() {
 		this(true);
 	}
 
-	public TextBuilder(boolean pretty) {
+	public Text(boolean pretty) {
 		this.pretty = pretty;
 		bufferCapacity = buffer.length;
-		indent = pretty ? new TextBuilder(false) : null;
+		indent = pretty ? new Text(false) : null;
 	}
 
 	@Override
@@ -110,7 +111,7 @@ public class TextBuilder implements CharSequence {
 		}
 	}
 
-	public void append(TextBuilder toAppend) {
+	public void append(Text toAppend) {
 		final int newLength = index + toAppend.index;
 		if(newLength > bufferCapacity) {
 			expand(index + toAppend.index);
@@ -188,30 +189,30 @@ public class TextBuilder implements CharSequence {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public CharSequence subSequence(int start, int end) {
-		return getString(start, end);
+	public CharSequence subSequence(int from, int to) {
+		return getString(from, to);
 	}
 
 	/**
-	 * @param start
+	 * @param from
 	 *            Offset of first character to return.
 	 * @return Return a string starting at 'start' and ending at the cursor.
 	 */
-	public String getString(int start) {
-		return getString(start, cursor);
+	public String getString(int from) {
+		return getString(from, cursor);
 	}
 
-	public String getString(int start, int end) {
-		if(start < 0) {
-			throw new StringIndexOutOfBoundsException(start);
+	public String getString(int from, int to) {
+		if(from < 0) {
+			throw new StringIndexOutOfBoundsException(from);
 		}
-		if(end > index) {
-			throw new StringIndexOutOfBoundsException(end);
+		if(to > index) {
+			throw new StringIndexOutOfBoundsException(to);
 		}
-		if(start > end) {
-			throw new StringIndexOutOfBoundsException(end - start);
+		if(from > to) {
+			throw new StringIndexOutOfBoundsException(to - from);
 		}
-		return new String(buffer, start, end - start);
+		return new String(buffer, from, to - from);
 	}
 
 	/**
@@ -254,8 +255,7 @@ public class TextBuilder implements CharSequence {
 	}
 
 	/**
-	 * The does the same as creating a new TextBuilder without the construction
-	 * cost.
+	 * The does the same as creating a new Text without the construction cost.
 	 */
 	public void recycle() {
 		lastNewline = 0;
@@ -313,11 +313,11 @@ public class TextBuilder implements CharSequence {
 	}
 
 	public static interface ToString {
-		void toString(TextBuilder result);
+		void toString(Text result);
 	}
 
 	/**
-	 * Do indent "key" ':' ' ' value.toString(tb) ';' nl
+	 * Do indent "key" ':' ' ' value.toString(t) ';' nl
 	 *
 	 * @param keyName
 	 *            The name of the key.
@@ -336,14 +336,13 @@ public class TextBuilder implements CharSequence {
 
 	/*
 	 * Parsing support
-	 *
-	 * TextBuilder provides a set of methods that support simple parsing of
-	 * strings. A cursor is set to the place where parsing is to start,
-	 * typically this will be at the start of the string. Then a number of
-	 * methods: parseXxx() attempt to advance the cursor reading be reading
-	 * whatever is expected; for example parseInt() will attempt to parse an
-	 * int.
-	 *
+	 * 
+	 * Text provides a set of methods that support simple parsing of strings. A
+	 * cursor is set to the place where parsing is to start, typically this will
+	 * be at the start of the string. Then a number of methods: parseXxx()
+	 * attempt to advance the cursor reading be reading whatever is expected;
+	 * for example parseInt() will attempt to parse an int.
+	 * 
 	 * For each type there is a imperative version and a 'best attempt' version
 	 * int parseInt() must parse an int and returns primitive and throws a
 	 * ParseException if one cannot be parsed whereas parseInteger tries to
@@ -354,7 +353,7 @@ public class TextBuilder implements CharSequence {
 		private static final long serialVersionUID = 1956489519812071218L;
 
 		ParseException(String message) {
-			super("\"" + TextBuilder.this.toString() + "\":" + cursor + ' ' + message);
+			super("\"" + Text.this.toString() + "\":" + cursor + ' ' + message);
 		}
 	}
 
@@ -389,23 +388,58 @@ public class TextBuilder implements CharSequence {
 	private int cursor;
 
 	/**
-	 * Consume ASCII characters matching a given bitmap (see ASCII_*), e.g.
-	 * tb.consume(ASCII_1_9 | ASCII_UNDERLINE) will advance the cursor while the
-	 * character at the cursor is either a number or an underline.
+	 * Consume at least 'from' and at most 'to characters of type 'bitmap'
+	 *
+	 * @return Return true if at least one character was consumed.
 	 *
 	 * @param bitmap
-	 *            The bitmap to match, .
-	 * @return Return true if at least one character was consumed.
+	 *            The bitmap to match, e.g. ASCII_1_9 | ASCII_UNDERLINE.
+	 * @param constraints
+	 *            Either 0, 1 or 2 integers. 0 means consume at least one
+	 *            character, 1 means consume exactly x characters, 2 means
+	 *            consume at least x and at most y characters, For example
+	 *            consumeAscii(ASCII_0_9, 1, 3) means consume between 1 and
+	 *            three digits.
+	 * @return Return true if at least one and the required matching characters
+	 *         were consumed.
 	 */
-	public boolean consumeAscii(byte bitmap) {
-		boolean result = false;
-		while(cursor < index) {
-			final char c = buffer[cursor];
-			if(c > MAX_ASCII || ((asciiTypeBits[c] & bitmap) == 0)) {
+	public boolean consumeAscii(byte bitmap, int... constraints) {
+		final boolean result;
+
+		assert bitmap != 0 : "Missing bit map";
+
+		int from, to;
+		final int length = constraints.length;
+		if(length == 0) {
+			from = 0;
+			to = Integer.MAX_VALUE;
+		} else if(length == 1) {
+			from = to = constraints[0];
+		} else if(length == 2) {
+			from = constraints[0];
+			to = constraints[1];
+		} else {
+			throw new RuntimeException("Too many constraints: " + length);
+		}
+
+		assert from >= 0 && from <= to : "Invalid size constraints";
+
+		start = cursor;
+		int count = 0;
+		while((cursor + count) < index && count < to) {
+			final char c = buffer[cursor + count];
+			if(c <= MAX_ASCII && (asciiTypeBits[c] & bitmap) != 0) {
+				count++;
+			} else {
 				break;
 			}
+		}
+
+		if(count >= from && count <= to && count > 0) {
 			result = true;
-			cursor++;
+			cursor += count;
+		} else {
+			result = false;
 		}
 
 		return result;
@@ -536,7 +570,7 @@ public class TextBuilder implements CharSequence {
 	 * @return At least one character was consumed.
 	 */
 	public boolean consumeUntil(char stop) {
-		final int start = cursor;
+		start = cursor;
 		while(cursor < index && buffer[cursor] != stop) {
 			cursor++;
 		}
@@ -544,7 +578,7 @@ public class TextBuilder implements CharSequence {
 	}
 
 	public String parseUntil(char stop) {
-		final int start = cursor;
+		start = cursor;
 		consumeUntil(stop);
 		return getString(start);
 	}
@@ -618,7 +652,7 @@ public class TextBuilder implements CharSequence {
 
 	public String parse(Checker checker) {
 
-		final int start = cursor;
+		start = cursor;
 		while(cursor < index) {
 			final char c = buffer[cursor];
 			if(!checker.isValid(cursor - start, c)) {
@@ -672,7 +706,7 @@ public class TextBuilder implements CharSequence {
 	 * @return Return true if a quoted String was found and the cursor advanced.
 	 */
 	public boolean consumeString() {
-		final int save = cursor;
+		start = cursor;
 		if(cursor != index) {
 			// Pick up the quote character...
 			final char quote = buffer[cursor];
@@ -684,7 +718,7 @@ public class TextBuilder implements CharSequence {
 
 				if(cursor == index) {
 					// EOF
-					cursor = save;
+					cursor = start;
 					break;
 				}
 
@@ -697,7 +731,7 @@ public class TextBuilder implements CharSequence {
 
 				if(c == '\n') {
 					// End of line
-					cursor = save;
+					cursor = start;
 					break;
 				}
 
@@ -706,14 +740,14 @@ public class TextBuilder implements CharSequence {
 					cursor++;
 					if(cursor == index) {
 						// EOF
-						cursor = save;
+						cursor = start;
 						break;
 					}
 				}
 			}
 		}
 
-		return cursor != save;
+		return cursor != start;
 	}
 
 	/**
@@ -724,7 +758,7 @@ public class TextBuilder implements CharSequence {
 	public boolean consumeInt() {
 		final boolean result;
 
-		final int save = cursor;
+		start = cursor;
 		if(consume('0')) {
 			result = true;
 		} else {
@@ -734,7 +768,7 @@ public class TextBuilder implements CharSequence {
 		}
 
 		if(!result) {
-			cursor = save;
+			cursor = start;
 		}
 
 		return result;
@@ -752,7 +786,7 @@ public class TextBuilder implements CharSequence {
 		if(cursor == index) {
 			result = false;
 		} else {
-			final int start = cursor;
+			start = cursor;
 			final char first = buffer[cursor];
 			consumeAscii(ASCII_0_9);
 			if(first == '0') {
@@ -765,5 +799,21 @@ public class TextBuilder implements CharSequence {
 		}
 
 		return result;
+	}
+
+	/**
+	 * This is equivalent to the following code:
+	 *
+	 * <pre>
+	 * final int save = t.getCursor();
+	 * t.consumePint();
+	 * final String consumed = t.getConsumed();
+	 * </pre>
+	 *
+	 * @return The last characters consumed. This will be an empty string if
+	 *         nothing was consumed.
+	 */
+	public String getConsumed() {
+		return new String(buffer, start, cursor - start);
 	}
 }

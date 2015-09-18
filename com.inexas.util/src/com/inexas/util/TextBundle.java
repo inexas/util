@@ -290,7 +290,7 @@ public class TextBundle extends Properties {
 	 */
 	private boolean parametersExist(String sqlKey, String[] parameters) {
 		final String sql = getString(sqlKey);
-		final TextBuilder sb = new TextBuilder();
+		final Text sb = new Text();
 		for(int i = 0; i < parameters.length; i += 2) {
 			final String parameterName = parameters[i];
 			if(!(parameterName.startsWith("{") && parameterName.endsWith("}"))) {

@@ -26,7 +26,7 @@ public class InexasFormatter extends Formatter {
 
 		// Date time 2014/10/23 11:22:12...
 		final Date date = new Date(record.getMillis());
-		sb.append(DateU.formatDateTimeAirline(date));
+		sb.append(DateU.formatDatetimeAirline(date));
 		sb.append(' ');
 
 		// The message...

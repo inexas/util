@@ -1,5 +1,7 @@
 package com.inexas.util;
 
+import com.sun.istack.internal.Nullable;
+
 /**
  * Cardinality
  */
@@ -118,6 +120,35 @@ public class Cardinality {
 		return newInstance(from, to);
 	}
 
+	/**
+	 *
+	 * @param t
+	 *            Source to parse
+	 * @return A Cardinality or null if one cannot be parsed.
+	 * @see #newInstance(String)
+	 */
+	@Nullable
+	public static Cardinality parse(Text t) {
+		final Cardinality result;
+
+		// cardinality
+		// : '*'
+		// | Pint '..' ( '*' | Pint )
+		// ;
+
+		final int start = t.cursor();
+		if(t.consume('*') ||
+				t.consumePint() && t.consume("..") && (t.consume('*') || t.consumePint())) {
+			final String string = t.getString(start);
+			result = Cardinality.newInstance(string);
+		} else {
+			t.setCursor(start);
+			result = null;
+		}
+
+		return result;
+	}
+
 	private Cardinality(int from, int to) {
 		this.from = from;
 		this.to = to;
@@ -158,13 +189,8 @@ public class Cardinality {
 		return text;
 	}
 
-	public void toString(TextBuilder result) {
-		result.indent();
-		result.append("cardinality");
-		result.space();
+	public void toString(Text result) {
 		result.append(text);
-		result.append(';');
-		result.newline();
 	}
 
 }

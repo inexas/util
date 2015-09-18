@@ -29,7 +29,7 @@ public class StringU {
 
 	public static String getGetterName(String name) {
 		assert name != null && name.length() > 0;
-		final TextBuilder sb = new TextBuilder();
+		final Text sb = new Text();
 		sb.append("get");
 		sb.append(Character.toUpperCase(name.charAt(0)));
 		sb.append(name.substring(1));
@@ -47,7 +47,7 @@ public class StringU {
 
 	public static String toCamelCase(String string) {
 		final String[] parts = string.split("_");
-		final TextBuilder sb = new TextBuilder();
+		final Text sb = new Text();
 		for(final String part : parts) {
 			sb.append(toProperCase(part));
 		}
@@ -116,7 +116,7 @@ public class StringU {
 		}
 	}
 
-	public static void subString(String source, int maxLength, TextBuilder result) {
+	public static void subString(String source, int maxLength, Text result) {
 		final char[] ca = source.toCharArray();
 		final int count = ca.length < maxLength ? ca.length : maxLength;
 		for(int i = 0; i < count; i++) {
@@ -184,7 +184,8 @@ public class StringU {
 	 * @param string
 	 *            String to check
 	 * @param quoteChars
-	 * @return
+	 *            Possible quote characters
+	 * @return Return true if the String has matching quotes
 	 */
 	public static boolean hasQuotes(String string, char[] quoteChars) {
 		boolean result;
@@ -276,7 +277,7 @@ public class StringU {
 		return result;
 	}
 
-	public static void escapeNewlinesAndQuotes(String string, TextBuilder sb) {
+	public static void escapeNewlinesAndQuotes(String string, Text sb) {
 		for(final char c : string.toCharArray()) {
 			switch(c) {
 			case '\n':
@@ -294,7 +295,7 @@ public class StringU {
 	}
 
 	public static String toDelimitedString(Collection<? extends Object> items) {
-		final TextBuilder result = new TextBuilder();
+		final Text result = new Text();
 		boolean delimiter = false;
 		for(final Object item : items) {
 			if(delimiter) {
@@ -308,7 +309,7 @@ public class StringU {
 	}
 
 	public static String toDelimitedString(Object[] items) {
-		final TextBuilder result = new TextBuilder();
+		final Text result = new Text();
 		boolean delimiter = false;
 		for(final Object item : items) {
 			if(delimiter) {
@@ -327,29 +328,29 @@ public class StringU {
 		if(items == null) {
 			result = null;
 		} else {
-			final TextBuilder tb = new TextBuilder(false);
+			final Text t = new Text(false);
 			for(final Object item : items) {
-				tb.delimit();
+				t.delimit();
 				if(item == null) {
-					tb.append("\\0");
+					t.append("\\0");
 				} else {
 					final char[] ca = item.toString().toCharArray();
 					for(final char c : ca) {
 						switch(c) {
 						case '\\':
-							tb.append("\\\\");
+							t.append("\\\\");
 							break;
 						case ',':
-							tb.append("\\,");
+							t.append("\\,");
 							break;
 						default:
-							tb.append(c);
+							t.append(c);
 							break;
 						}
 					}
 				}
 			}
-			result = tb.toString();
+			result = t.toString();
 		}
 
 		return result;
@@ -361,7 +362,7 @@ public class StringU {
 		if(items == null) {
 			result = null;
 		} else {
-			final TextBuilder sb = new TextBuilder();
+			final Text sb = new Text();
 			boolean delimiter = false;
 			for(final Object item : items) {
 				if(delimiter) {
@@ -400,7 +401,7 @@ public class StringU {
 			result = null;
 		} else {
 			final List<String> array = new ArrayList<>();
-			final TextBuilder tb = new TextBuilder();
+			final Text t = new Text();
 			final char[] ca = commaDelimitedStrings.toCharArray();
 			final int length = ca.length;
 			for(int i = 0; i < length; i++) {
@@ -414,7 +415,7 @@ public class StringU {
 					final char next = ca[++i];
 					switch(next) {
 					case '0': // \0 is a null
-						if(tb.length() != 0
+						if(t.length() != 0
 						|| i == length - 1
 						|| ca[++i] != ',') {
 							throw new RuntimeException("Invalid: " + commaDelimitedStrings);
@@ -424,7 +425,7 @@ public class StringU {
 
 					case ',':
 					case '\\':
-						tb.append(next);
+						t.append(next);
 						break;
 
 					default:
@@ -433,16 +434,16 @@ public class StringU {
 					break;
 
 				case ',':
-					array.add(tb.toString());
-					tb.recycle();
+					array.add(t.toString());
+					t.recycle();
 					break;
 
 				default:
-					tb.append(c);
+					t.append(c);
 					break;
 				}
 			}
-			array.add(tb.toString());
+			array.add(t.toString());
 			result = array.toArray(new String[array.size()]);
 		}
 		return result;
@@ -470,21 +471,21 @@ public class StringU {
 		if(string == null) {
 			result = null;
 		} else {
-			final TextBuilder tb = new TextBuilder();
+			final Text t = new Text();
 			if(quote) {
-				tb.append(quoteChar);
+				t.append(quoteChar);
 			}
 			final char[] ca = string.toCharArray();
 			for(final char c : ca) {
 				if(c == quoteChar || c == '\\') {
-					tb.append('\\');
+					t.append('\\');
 				}
-				tb.append(c);
+				t.append(c);
 			}
 			if(quote) {
-				tb.append(quoteChar);
+				t.append(quoteChar);
 			}
-			result = tb.toString();
+			result = t.toString();
 		}
 
 		return result;
@@ -508,7 +509,7 @@ public class StringU {
 				start = 0;
 				length = ca.length;
 			}
-			final TextBuilder sb = new TextBuilder();
+			final Text sb = new Text();
 			for(int i = start; i < length; i++) {
 				final char c = ca[i];
 				if(c == quoteChar || c == '\\') {
@@ -537,7 +538,7 @@ public class StringU {
 		if(map == null) {
 			result = null;
 		} else {
-			final TextBuilder sb = new TextBuilder();
+			final Text sb = new Text();
 			boolean delimit = false;
 			for(final Entry<String, Class<T>> entry : map.entrySet()) {
 				if(delimit) {
@@ -561,8 +562,8 @@ public class StringU {
 		} else {
 			try {
 				result = new HashMap<>();
-				final TextBuilder key = new TextBuilder();
-				final TextBuilder className = new TextBuilder();
+				final Text key = new Text();
+				final Text className = new Text();
 				boolean buildKey = true;
 				for(final char c : string.toCharArray()) {
 					if(c == ':') {
@@ -595,12 +596,12 @@ public class StringU {
 		if(array == null) {
 			result = null;
 		} else {
-			final TextBuilder tb = new TextBuilder(false);
+			final Text t = new Text(false);
 			for(final int i : array) {
-				tb.delimit();
-				tb.append(i);
+				t.delimit();
+				t.append(i);
 			}
-			result = tb.toString();
+			result = t.toString();
 		}
 		return result;
 	}
@@ -610,12 +611,12 @@ public class StringU {
 		if(array == null) {
 			result = null;
 		} else {
-			final TextBuilder tb = new TextBuilder();
+			final Text t = new Text();
 			for(final long l : array) {
-				tb.delimit();
-				tb.append(l);
+				t.delimit();
+				t.append(l);
 			}
-			result = tb.toString();
+			result = t.toString();
 		}
 		return result;
 	}
@@ -658,7 +659,7 @@ public class StringU {
 
 	public static String stringifyKeyedObject(String key, Object object) {
 		final Gson gson = new Gson();
-		final TextBuilder sb = new TextBuilder(key);
+		final Text sb = new Text(key);
 		sb.append(':');
 		sb.append(object.getClass().getName());
 		sb.append(':');
@@ -766,7 +767,7 @@ public class StringU {
 		if(string == null) {
 			result = "null";
 		} else {
-			final TextBuilder tb = new TextBuilder();
+			final Text t = new Text();
 			final char[] ca = string.toCharArray();
 			for(final char c : ca) {
 				switch(c) {
@@ -774,20 +775,20 @@ public class StringU {
 					// Discard
 					break;
 				case '\n':
-					tb.append("\\n");
+					t.append("\\n");
 					break;
 				case '\t':
-					tb.append("\\t");
+					t.append("\\t");
 					break;
 				case '"':
-					tb.append("\\\"");
+					t.append("\\\"");
 					break;
 				default:
-					tb.append(c);
+					t.append(c);
 					break;
 				}
 			}
-			result = tb.toString();
+			result = t.toString();
 		}
 
 		return result;
