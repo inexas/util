@@ -164,10 +164,22 @@ public class DateU {
 	 */
 	public static String formatStandardDatetime(LocalDateTime datetime) {
 		final Text t = new Text();
+		formatStandardDatetime(datetime, t);
+		return t.toString();
+	}
+
+	/**
+	 * Format a given datetime in standard format.
+	 *
+	 * @param datetime
+	 *            The datetime to format.
+	 * @param t
+	 *            The recipient of the text: yyyy/mm/dd hh:mm(:ss(.ms)?)?
+	 */
+	public static void formatStandardDatetime(LocalDateTime datetime, Text t) {
 		date(datetime.getYear(), datetime.getMonthValue(), datetime.getDayOfMonth(), t);
 		t.append(' ');
 		time(datetime.getHour(), datetime.getMinute(), datetime.getSecond(), datetime.getNano(), t);
-		return t.toString();
 	}
 
 	/**
@@ -179,8 +191,12 @@ public class DateU {
 	 */
 	public static String formatStandardDate(LocalDate date) {
 		final Text t = new Text();
-		date(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), t);
+		formatStandardDate(date, t);
 		return t.toString();
+	}
+
+	public static void formatStandardDate(LocalDate date, Text t) {
+		date(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), t);
 	}
 
 	/**
@@ -192,8 +208,12 @@ public class DateU {
 	 */
 	public static String formatStandardTime(LocalTime time) {
 		final Text t = new Text();
-		time(time.getHour(), time.getMinute(), time.getSecond(), time.getNano(), t);
+		formatStandardTime(time, t);
 		return t.toString();
+	}
+
+	public static void formatStandardTime(LocalTime time, Text t) {
+		time(time.getHour(), time.getMinute(), time.getSecond(), time.getNano(), t);
 	}
 
 	private static LocalDate date(Text t) {
