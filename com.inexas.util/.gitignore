@@ -36,6 +36,11 @@ Thumbs.db
 
 /.settings/
 /srcgen/
+<<<<<<< HEAD
+=======
+/.gradle/
+/gradle/
+>>>>>>> dc61e66964473a26e8c9eaac9a0f459e71a3d2f6
 build
 bin
 
