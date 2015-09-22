@@ -336,13 +336,13 @@ public class Text implements CharSequence {
 
 	/*
 	 * Parsing support
-	 *
+	 * 
 	 * Text provides a set of methods that support simple parsing of strings. A
 	 * cursor is set to the place where parsing is to start, typically this will
 	 * be at the start of the string. Then a number of methods: parseXxx()
 	 * attempt to advance the cursor reading be reading whatever is expected;
 	 * for example parseInt() will attempt to parse an int.
-	 *
+	 * 
 	 * For each type there is a imperative version and a 'best attempt' version
 	 * int parseInt() must parse an int and returns primitive and throws a
 	 * ParseException if one cannot be parsed whereas parseInteger tries to
@@ -816,5 +816,14 @@ public class Text implements CharSequence {
 	 */
 	public String getConsumed() {
 		return new String(buffer, start, cursor - start);
+	}
+
+	/**
+	 * @return A character array copy of the currently buffered Text
+	 */
+	public char[] toCharArray() {
+		final char[] result = new char[index];
+		System.arraycopy(buffer, 0, result, 0, index);
+		return result;
 	}
 }
