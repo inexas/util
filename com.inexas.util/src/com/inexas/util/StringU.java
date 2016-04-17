@@ -277,18 +277,31 @@ public class StringU {
 		return result;
 	}
 
-	public static void escapeNewlinesAndQuotes(String string, Text sb) {
+	/**
+	 * LFs are converted to "\n", quotes to "\"" and CRs are discarded
+	 *
+	 * @param string
+	 *            The (not null) source String
+	 * @param result
+	 *            The processed text
+	 */
+	public static void escapeNewlinesAndQuotes(String string, Text result) {
+		assert result != null;
 		for(final char c : string.toCharArray()) {
 			switch(c) {
+			case '\r':
+				break;
+
 			case '\n':
-				sb.append('\\');
-				sb.append('n');
+				result.append("\\n");
 				break;
 
 			case '"':
-				sb.append('\\');
+				result.append("\\\"");
+				break;
+
 			default:
-				sb.append(c);
+				result.append(c);
 				break;
 			}
 		}
@@ -416,8 +429,8 @@ public class StringU {
 					switch(next) {
 					case '0': // \0 is a null
 						if(t.length() != 0
-						|| i == length - 1
-						|| ca[++i] != ',') {
+								|| i == length - 1
+								|| ca[++i] != ',') {
 							throw new RuntimeException("Invalid: " + commaDelimitedStrings);
 						}
 						array.add(null);

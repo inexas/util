@@ -153,7 +153,7 @@ public class Text implements CharSequence {
 	}
 
 	/**
-	 * This is the same as indent(), append(text), newline();
+	 * This is the same as indent(), append(text)..., newline();
 	 *
 	 * @param strings
 	 *            List of Strings write.

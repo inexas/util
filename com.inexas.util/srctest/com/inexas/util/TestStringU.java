@@ -80,4 +80,17 @@ public class TestStringU {
 		assertEquals("asdf", StringU.toJavaString("asdf"));
 		assertEquals("\\n\\t\\\"", StringU.toJavaString("\n\r\t\""));
 	}
+
+	@Test
+	public void testEscapeNewlinesAndQuotes() {
+		doTestEscapeNewlinesAndQuotesTest("\"abc\"\r\n", "\\\"abc\\\"\\n");
+		doTestEscapeNewlinesAndQuotesTest("abc", "abc");
+		doTestEscapeNewlinesAndQuotesTest("", "");
+	}
+
+	private void doTestEscapeNewlinesAndQuotesTest(String toTest, String expectedResult) {
+		final Text text = new Text(true);
+		StringU.escapeNewlinesAndQuotes(toTest, text);
+		assertEquals(expectedResult, text.toString());
+	}
 }
