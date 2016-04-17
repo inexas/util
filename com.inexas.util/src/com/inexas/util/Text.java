@@ -155,18 +155,20 @@ public class Text implements CharSequence {
 	/**
 	 * This is the same as indent(), append(text), newline();
 	 *
-	 * @param text
-	 *            Text to write.
+	 * @param strings
+	 *            List of Strings write.
 	 */
-	public void writeline(String text) {
+	public void writeline(String... strings) {
 		indent();
-		append(text);
+		for(final String string : strings) {
+			append(string);
+		}
 		newline();
 	}
 
 	public void setLength(int length) {
 		// todo This is a bit dangerous, consider push state?
-		assert length > 0 && length < index;
+		assert length >= 0 && length < index;
 		index = length;
 	}
 
