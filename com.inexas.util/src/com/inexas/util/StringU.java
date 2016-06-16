@@ -12,6 +12,13 @@ import com.inexas.util.ReflectionU.ReflectException;
 public class StringU {
 	public final static Pattern validMd5 = Pattern.compile("[0-9a-z]{32}");
 
+	private final static String nameRegExp = "[a-zA-Z_][0-9a-zA-Z_]{0,63}";
+	public final static Pattern validName = Pattern.compile(nameRegExp);
+
+	// Path: '/' ( ( Name '/' )* Name )?
+	private final static String absolutePathRegExp = "/((" + nameRegExp + "/)*" + nameRegExp + ")?";
+	public final static Pattern validAbsolutePath = Pattern.compile(absolutePathRegExp);
+
 	public static String stripQuotes(String string) {
 		assert string != null : "Null string";
 		final int length = string.length();
@@ -236,17 +243,6 @@ public class StringU {
 		return isValidName(candidate, true);
 	}
 
-	/**
-	 * Check for a valid name.
-	 *
-	 * @param candidate
-	 *            The name to check.
-	 * @return true if the candidate name is valid.
-	 */
-	public static boolean isValidName(String candidate) {
-		return isValidName(candidate, false);
-	}
-
 	private static boolean isValidName(String candidate, boolean dots) {
 		boolean result;
 		if(candidate == null) {
@@ -289,7 +285,11 @@ public class StringU {
 		assert result != null;
 		for(final char c : string.toCharArray()) {
 			switch(c) {
-			case '\r':
+			case '\\': // Escape non-escape slashes
+				result.append("\\\\");
+				break;
+
+			case '\r': // Discard carriage returns
 				break;
 
 			case '\n':
@@ -805,6 +805,14 @@ public class StringU {
 		}
 
 		return result;
+	}
+
+	public static boolean isValidName(String candidate) {
+		return validName.matcher(candidate).matches();
+	}
+
+	public static boolean isValidAbsolutePath(String candidate) {
+		return validAbsolutePath.matcher(candidate).matches();
 	}
 
 }

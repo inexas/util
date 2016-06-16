@@ -52,20 +52,21 @@ public class Text implements CharSequence {
 	}
 
 	public void newlinePrettyOrNot() {
-		if(index >= bufferCapacity) {
-			expand(bufferCapacity + 1);
-		}
+		ensureSpaceFor(1);
 		buffer[index++] = '\n';
 		lastNewline = index;
 	}
 
 	public void space() {
 		if(pretty) {
-			if(index == bufferCapacity) {
-				expand(bufferCapacity + 1);
-			}
+			ensureSpaceFor(1);
 			buffer[index++] = ' ';
 		}
+	}
+
+	public void spacePrettyOrNot() {
+		ensureSpaceFor(1);
+		buffer[index++] = ' ';
 	}
 
 	public void indent() {
@@ -90,18 +91,13 @@ public class Text implements CharSequence {
 	}
 
 	public void append(char c) {
-		if(index == bufferCapacity) {
-			expand(bufferCapacity + 1);
-		}
+		ensureSpaceFor(1);
 		buffer[index++] = c;
 	}
 
 	public void append(CharSequence sequence) {
 		final int length = sequence.length();
-		final int newLength = index + length;
-		if(newLength > bufferCapacity) {
-			expand(newLength);
-		}
+		ensureSpaceFor(length);
 		for(int i = 0; i < length; i++) {
 			final char c = sequence.charAt(i);
 			buffer[index++] = c;
@@ -116,12 +112,10 @@ public class Text implements CharSequence {
 	}
 
 	public void append(Text toAppend) {
-		final int newLength = index + toAppend.index;
-		if(newLength > bufferCapacity) {
-			expand(index + toAppend.index);
-		}
+		final int length = index + toAppend.index;
+		ensureSpaceFor(length);
 		System.arraycopy(toAppend.buffer, 0, buffer, index, toAppend.index);
-		index = newLength;
+		index = length;
 	}
 
 	public void append(int i) {
@@ -679,13 +673,17 @@ public class Text implements CharSequence {
 		this.cursor = cursor;
 	}
 
-	private void expand(int minimumCapacity) {
-		// There's no check for buffer overflow
-		bufferCapacity = bufferCapacity * 2;
-		if(minimumCapacity > bufferCapacity) {
-			bufferCapacity = minimumCapacity;
+	private void ensureSpaceFor(int extraSpaceNeeded) {
+		final int totalNeeded = index + extraSpaceNeeded;
+		if(totalNeeded > bufferCapacity) {
+			// By default we'll increase by 50%...
+			bufferCapacity = bufferCapacity + bufferCapacity / 2;
+			if(totalNeeded > bufferCapacity) {
+				// Still not enough, use what's needed plus a bit
+				bufferCapacity = totalNeeded + 32;
+			}
+			buffer = Arrays.copyOf(buffer, bufferCapacity);
 		}
-		buffer = Arrays.copyOf(buffer, bufferCapacity);
 	}
 
 	/**
