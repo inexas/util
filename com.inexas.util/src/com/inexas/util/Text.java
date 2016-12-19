@@ -96,13 +96,17 @@ public class Text implements CharSequence {
 	}
 
 	public void append(CharSequence sequence) {
-		final int length = sequence.length();
-		ensureSpaceFor(length);
-		for(int i = 0; i < length; i++) {
-			final char c = sequence.charAt(i);
-			buffer[index++] = c;
-			if(c == '\n') {
-				lastNewline = index;
+		if(sequence == null) {
+			append("<null>");
+		} else {
+			final int length = sequence.length();
+			ensureSpaceFor(length);
+			for(int i = 0; i < length; i++) {
+				final char c = sequence.charAt(i);
+				buffer[index++] = c;
+				if(c == '\n') {
+					lastNewline = index;
+				}
 			}
 		}
 	}
@@ -134,6 +138,14 @@ public class Text implements CharSequence {
 		append(l.toString());
 	}
 
+	public void append(double d) {
+		append(Double.toString(d));
+	}
+
+	public void append(Double d) {
+		append(d.toString());
+	}
+
 	/**
 	 * Short hand for indent, append, newline.
 	 *
@@ -162,7 +174,7 @@ public class Text implements CharSequence {
 
 	public void setLength(int length) {
 		// todo This is a bit dangerous, consider push state?
-		assert length >= 0 && length < index;
+		assert length >= 0 && length <= index;
 		index = length;
 	}
 
@@ -830,4 +842,68 @@ public class Text implements CharSequence {
 		System.arraycopy(buffer, 0, result, 0, index);
 		return result;
 	}
+
+	/**
+	 * Append characters escaping special characters in a Java like fashion so
+	 * that the text's contents are human readable, e.g.
+	 * "Newline\ntab\t\nWeird\u0001"
+	 *
+	 * @param c
+	 *            Character to append
+	 * @param escapeQuotes
+	 *            true if you need quotes to be \"escaped\"
+	 */
+	public void appendEscaped(char c, boolean escapeQuotes) {
+		if(c < 32 || c == '\\' || (c == '"' && escapeQuotes)) {
+			switch(c) {
+			case '\b':
+				append("\\b");
+				break;
+
+			case '\n':
+				append("\\n");
+				break;
+
+			case '\t':
+				append("\\t");
+				break;
+
+			case '\f':
+				append("\\f");
+				break;
+
+			case '\r':
+				// Discard
+				break;
+
+			case '"':
+				append("\\\"");
+				break;
+
+			case '\\':
+				append("\\\\");
+				break;
+
+			default:
+				append("\\u");
+				final String hex = Integer.toHexString(c);
+				append("0000".substring(hex.length()));
+				append(hex);
+			}
+		} else {
+			append(c);
+		}
+	}
+
+	public void appendString(String string) {
+		assert string != null;
+		final int length = string.length();
+		append('"');
+		for(int i = 0; i < length; i++) {
+			final char c = string.charAt(length);
+			appendEscaped(c, true);
+		}
+		append('"');
+	}
+
 }

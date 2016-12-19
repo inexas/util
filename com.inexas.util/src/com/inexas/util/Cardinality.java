@@ -180,7 +180,7 @@ public class Cardinality {
 		return from == to;
 	}
 
-	public boolean isValidCardinality(int candidate) {
+	public boolean isValid(int candidate) {
 		return candidate >= from && candidate <= to;
 	}
 

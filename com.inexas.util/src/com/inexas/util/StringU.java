@@ -10,9 +10,10 @@ import com.inexas.exception.UnexpectedException;
 import com.inexas.util.ReflectionU.ReflectException;
 
 public class StringU {
-	public final static Pattern validMd5 = Pattern.compile("[0-9a-z]{32}");
+	public final static Pattern validMd5 = Pattern.compile("[0-9A-Fa-f]{64}");
+	public final static Pattern validHex = Pattern.compile("[0-9A-Fa-f]+");
 
-	private final static String nameRegExp = "[a-zA-Z_][0-9a-zA-Z_]{0,63}";
+	private final static String nameRegExp = "[a-zA-Z_][0-9A-Za-z_]{0,63}";
 	public final static Pattern validName = Pattern.compile(nameRegExp);
 
 	// Path: '/' ( ( Name '/' )* Name )?
@@ -45,9 +46,15 @@ public class StringU {
 
 	public static int crc(String string) {
 		int result = 0;
-		for(final char c : string.toCharArray()) {
-			// Rotate result 1, xor with next c...
-			result = (result << 1 | (result < 0 ? 1 : 0)) ^ c;
+		final char[] ca = string.toCharArray();
+		for(final char c : ca) {
+			// Rotate left result 1 bit, xor with next c...
+			if(result < 0) {
+				// Top bit set, set bit 0 to 1
+				result = ((result << 1) | 1) ^ c;
+			} else {
+				result = (result << 1) ^ c;
+			}
 		}
 		return result;
 	}
@@ -815,4 +822,50 @@ public class StringU {
 		return validAbsolutePath.matcher(candidate).matches();
 	}
 
+	public static boolean isValidHex(String candidate) {
+		return validHex.matcher(candidate).matches();
+	}
+
+	public static String summary(String string, int maximumLength) {
+		final Text result;
+
+		assert maximumLength >= 1;
+
+		if(string == null) {
+			result = null;
+		} else {
+			result = new Text();
+			final int processinglenth;
+			final boolean elipses;
+			final int stringLength = string.length();
+			if(stringLength > maximumLength) {
+				processinglenth = maximumLength;
+				elipses = true;
+			} else {
+				processinglenth = stringLength;
+				elipses = false;
+			}
+			for(int i = 0; i < processinglenth; i++) {
+				final char c = string.charAt(i);
+				result.appendEscaped(c, false);
+			}
+			if(elipses) {
+				result.append("...");
+			}
+		}
+
+		return result == null ? "<null>" : result.toString();
+	}
+
+	/**
+	 * Convert a character to unicode string format, e.g. 'A' becomes "\u0041".
+	 *
+	 * @param c
+	 *            The character to convert.
+	 * @return The unicode string representing c.
+	 */
+	public static String toUnicode(char c) {
+		final String hex = Integer.toHexString(c);
+		return "\\u000".substring(0, 6 - hex.length()) + hex;
+	}
 }

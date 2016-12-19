@@ -133,4 +133,18 @@ public class TestStringU {
 		assertFalse(StringU.isValidAbsolutePath("/a//v"));
 	}
 
+	@Test
+	public void testSummary() {
+		assertEquals("123", StringU.summary("123", 4));
+		assertEquals("123", StringU.summary("123", 3));
+		assertEquals("12...", StringU.summary("123", 2));
+		assertEquals("1\\n...", StringU.summary("1\n3", 2));
+	}
+
+	@Test
+	public void testToUnicode() {
+		assertEquals("\\u0001", StringU.toUnicode((char)1));
+		assertEquals("\\u0041", StringU.toUnicode('A'));
+	}
+
 }

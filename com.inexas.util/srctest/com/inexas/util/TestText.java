@@ -15,25 +15,6 @@ import org.junit.Test;
 
 public class TestText {
 
-	private void test(byte mask, int expectedCount) {
-		final Text t = new Text();
-		int count = 0;
-		for(char i = 0; i < 255; i++) {
-			t.recycle();
-			t.append(i);
-			if(t.consumeAscii(mask)) {
-				count++;
-			}
-		}
-		assertEquals(expectedCount, count);
-	}
-
-	private void test(int c, byte mask, boolean expected) {
-		final Text t = new Text();
-		t.append((char)c);
-		assertTrue(expected == t.consumeAscii(mask));
-	}
-
 	private void doValueTest(boolean expectedResult, String toTest) {
 		doValueTest(expectedResult, toTest, toTest);
 	}
@@ -48,67 +29,6 @@ public class TestText {
 		} else {
 			assertFalse(expectedResult);
 		}
-	}
-
-	private void doConsumeAsciiTest(String expected, String source, byte bitmap, int... constraints) {
-		final Text t = new Text();
-		t.append(source);
-		if(t.consumeAscii(bitmap, constraints)) {
-			final String actual = t.getConsumed();
-			assertEquals(expected, actual);
-		} else {
-			assertNull(expected);
-		}
-	}
-
-	@Test
-	public void testAsciiTable() {
-		test(Text.ASCII_0_9, 10);
-		test('0' - 1, Text.ASCII_0_9, false);
-		test('0', Text.ASCII_0_9, true);
-		test('9', Text.ASCII_0_9, true);
-		test('9' + 1, Text.ASCII_0_9, false);
-
-		test(Text.ASCII_1_9, 9);
-		test('1' - 1, Text.ASCII_1_9, false);
-		test('1', Text.ASCII_1_9, true);
-		test('9', Text.ASCII_1_9, true);
-		test('9' + 1, Text.ASCII_1_9, false);
-
-		test(Text.ASCII_A_Z, 26);
-		test('A' - 1, Text.ASCII_A_Z, false);
-		test('A', Text.ASCII_A_Z, true);
-		test('Z', Text.ASCII_A_Z, true);
-		test('Z' + 1, Text.ASCII_A_Z, false);
-
-		test(Text.ASCII_a_z, 26);
-		test('a' - 1, Text.ASCII_a_z, false);
-		test('a', Text.ASCII_a_z, true);
-		test('z', Text.ASCII_a_z, true);
-		test('z' + 1, Text.ASCII_a_z, false);
-
-		test(Text.ASCII_UNDERLINE, 1);
-		test('_' - 1, Text.ASCII_UNDERLINE, false);
-		test('_', Text.ASCII_UNDERLINE, true);
-		test('_' + 1, Text.ASCII_UNDERLINE, false);
-
-		test(Text.ASCII_0_1, 2);
-		test('0', Text.ASCII_0_1, true);
-		test('1', Text.ASCII_0_1, true);
-
-		test(Text.ASCII_0_F, 22);
-		test('0' - 1, Text.ASCII_0_F, false);
-		test('0', Text.ASCII_0_F, true);
-		test('9', Text.ASCII_0_F, true);
-		test('9' + 1, Text.ASCII_0_F, false);
-		test('a' - 1, Text.ASCII_0_F, false);
-		test('a', Text.ASCII_0_F, true);
-		test('f', Text.ASCII_0_F, true);
-		test('f' + 1, Text.ASCII_0_F, false);
-		test('A' - 1, Text.ASCII_0_F, false);
-		test('A', Text.ASCII_0_F, true);
-		test('F', Text.ASCII_0_F, true);
-		test('F' + 1, Text.ASCII_0_F, false);
 	}
 
 	@Test
@@ -138,12 +58,23 @@ public class TestText {
 		doValueTest(false, "'\\'"); // Escaped close
 	}
 
-	@Test
-	public void testConsumeAscii() {
-		doConsumeAsciiTest("123", "123a", Text.ASCII_0_9);
-		doConsumeAsciiTest("12", "123a", Text.ASCII_0_9, 2);
-		doConsumeAsciiTest("123", "123a", Text.ASCII_0_9, 2, 3);
-		doConsumeAsciiTest(null, "123a", Text.ASCII_a_z);
+	private void doAppendEscapedTest(String toTest, String expected, boolean escapeQuotes) {
+		final Text t = new Text();
+		for(int i = 0; i < toTest.length(); i++) {
+			t.appendEscaped(toTest.charAt(i), escapeQuotes);
+		}
+		assertEquals(expected, t.toString());
 	}
 
+	@Test
+	public void testAppendEscaped() {
+		doAppendEscapedTest("", "", true);
+		doAppendEscapedTest("abc", "abc", true);
+		doAppendEscapedTest("\t\b\n\r\f\"", "\\t\\b\\n\\f\\\"", true);
+		doAppendEscapedTest("\t\b\n\r\f\"", "\\t\\b\\n\\f\\\"", true);
+		doAppendEscapedTest("\t\b\n\r\f\"", "\\t\\b\\n\\f\"", false);
+		doAppendEscapedTest("\\", "\\\\", false);
+		doAppendEscapedTest("\u0001", "\\u0001", true);
+		doAppendEscapedTest("\u0014", "\\u0014", true);
+	}
 }

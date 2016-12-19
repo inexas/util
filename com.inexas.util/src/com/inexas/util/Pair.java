@@ -30,8 +30,7 @@ public class Pair<T1, T2> {
 			if(object1 == null) {
 				hashCode = object2 == null ? super.hashCode() : object2.hashCode();
 			} else {
-				hashCode = object2 == null ?
-						object1.hashCode() : object1.hashCode() + object2.hashCode();
+				hashCode = object2 == null ? object1.hashCode() : object1.hashCode() + object2.hashCode();
 			}
 		}
 		return hashCode;
@@ -66,9 +65,13 @@ public class Pair<T1, T2> {
 
 	@Override
 	public String toString() {
-		return "Pair(" +
-				(object1 == null ? "<null>" : object1.toString())
-				+ ", "
-				+ (object2 == null ? "<null>" : object2.toString() + ")");
+		final Text result = new Text();
+		result.delimit();
+		result.append("Pair(");
+		result.append(object1 == null ? "<null>" : object1.toString());
+		result.delimit();
+		result.append(object2 == null ? "<null>" : object2.toString());
+		result.append(')');
+		return result.toString();
 	}
 }
