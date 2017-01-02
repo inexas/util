@@ -1,0 +1,4 @@
+Version 0.1.6
+
+* Split Parser.java out of Text.java
+* Added pretty option to collection stringify

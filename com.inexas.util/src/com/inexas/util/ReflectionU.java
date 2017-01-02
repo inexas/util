@@ -32,16 +32,16 @@ public class ReflectionU {
 	 * @return The fully qualified name of the method.
 	 */
 	public static String toMethodName(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
-		final Text sb = new Text(clazz.getCanonicalName());
+		final Text t = new Text(clazz.getCanonicalName());
 
-		sb.append('.');
-		sb.append(methodName);
-		sb.append('(');
+		t.append('.');
+		t.append(methodName);
+		t.append('(');
 		if(parameterTypes != null) {
 			boolean delimit = false;
 			for(final Class<?> parameterType : parameterTypes) {
 				if(delimit) {
-					sb.append(", ");
+					t.append(", ");
 				} else {
 					delimit = true;
 				}
@@ -55,12 +55,12 @@ public class ReflectionU {
 				} else {
 					type = fullName;
 				}
-				sb.append(type);
+				t.append(type);
 			}
 		}
-		sb.append(')');
+		t.append(')');
 
-		return sb.toString();
+		return t.toString();
 	}
 
 	/**

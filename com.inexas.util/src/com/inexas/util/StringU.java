@@ -376,20 +376,39 @@ public class StringU {
 		return result;
 	}
 
-	public static String stringify(Collection<?> items) {
+	/**
+	 * See {@link #stringify(Collection, boolean)}
+	 *
+	 * @param collection
+	 *            The collection to stringify
+	 * @return A string representation of the collection.
+	 */
+	public static String stringify(Collection<?> collection) {
+		return stringify(collection, true);
+	}
+
+	/**
+	 * Stringify a collection of objects. The collection is turned into a comma
+	 * separated list. Null entries are coded as "\0" otherwise the object's
+	 * toString() method is used to convert the object to a string and then the
+	 * string is escaped using '\' to escape '\' and ',' characters.
+	 *
+	 * @param collection
+	 *            The collection to stringify
+	 * @param pretty
+	 *            Include spaces after the ,
+	 * @return A string representation of the collection.
+	 * @see
+	 */
+	public static String stringify(Collection<?> collection, boolean pretty) {
 		final String result;
 
-		if(items == null) {
+		if(collection == null) {
 			result = null;
 		} else {
-			final Text sb = new Text();
-			boolean delimiter = false;
-			for(final Object item : items) {
-				if(delimiter) {
-					sb.append(',');
-				} else {
-					delimiter = true;
-				}
+			final Text sb = new Text(pretty);
+			for(final Object item : collection) {
+				sb.delimit();
 				if(item == null) {
 					sb.append("\\0");
 				} else {
@@ -679,13 +698,13 @@ public class StringU {
 
 	public static String stringifyKeyedObject(String key, Object object) {
 		final Gson gson = new Gson();
-		final Text sb = new Text(key);
-		sb.append(':');
-		sb.append(object.getClass().getName());
-		sb.append(':');
+		final Text t = new Text(key);
+		t.append(':');
+		t.append(object.getClass().getName());
+		t.append(':');
 		final String json = gson.toJson(object);
-		sb.append(json);
-		return sb.toString();
+		t.append(json);
+		return t.toString();
 	}
 
 	public static <T> Pair<String, T> destringifyKeyedObject(String string) {

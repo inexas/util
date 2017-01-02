@@ -122,13 +122,13 @@ public class Cardinality {
 
 	/**
 	 *
-	 * @param t
+	 * @param parser
 	 *            Source to parse
 	 * @return A Cardinality or null if one cannot be parsed.
 	 * @see #newInstance(String)
 	 */
 	@Nullable
-	public static Cardinality parse(Text t) {
+	public static Cardinality parse(Parser parser) {
 		final Cardinality result;
 
 		// cardinality
@@ -136,13 +136,13 @@ public class Cardinality {
 		// | Pint '..' ( '*' | Pint )
 		// ;
 
-		final int start = t.cursor();
-		if(t.consume('*') ||
-				t.consumePint() && t.consume("..") && (t.consume('*') || t.consumePint())) {
-			final String string = t.getString(start);
+		final int start = parser.cursor();
+		if(parser.consume('*') ||
+				parser.consumePint() && parser.consume("..") && (parser.consume('*') || parser.consumePint())) {
+			final String string = parser.getString(start);
 			result = Cardinality.newInstance(string);
 		} else {
-			t.setCursor(start);
+			parser.setCursor(start);
 			result = null;
 		}
 

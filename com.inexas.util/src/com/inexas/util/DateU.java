@@ -10,10 +10,9 @@ public class DateU {
 	private static final DateFormat airlineDatetime = new SimpleDateFormat("ddMMMyy HH:mm:ss");
 	private final static DateFormat sqlDatetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private final static DateFormat sqlDate = new SimpleDateFormat("yyyy-MM-dd");
-	public final static String MESSAGE =
-			"Date should be in format 'yyyy/MM/dd HH:mm:ss', you may have " +
-					"date only, time only or date and time all units in descending " +
-					"order: ";
+	public final static String MESSAGE = "Date should be in format 'yyyy/MM/dd HH:mm:ss', you may have " +
+			"date only, time only or date and time all units in descending " +
+			"order: ";
 
 	/**
 	 * Date time hours minutes seconds as compact as possible
@@ -89,8 +88,7 @@ public class DateU {
 	 * 'Standard' date time format
 	 *
 	 * After a lot of work and trying to figure ways around bugs in the Java
-	 * library using Text is easier
-	 *
+	 * library using Parser is easier
 	 *
 	 * Bug: http://stackoverflow.com/questions/22588051/
 	 */
@@ -106,11 +104,10 @@ public class DateU {
 	public static LocalDateTime parseStandardDatetime(String datetime) {
 		final LocalDateTime result;
 
-		final Text t = new Text();
-		t.append(datetime);
+		final Parser parser = new Parser(datetime);
 		LocalDate date;
 		LocalTime time;
-		if((date = date(t)) != null && t.consume(' ') && (time = time(t)) != null) {
+		if((date = date(parser)) != null && parser.consume(' ') && (time = time(parser)) != null) {
 			result = LocalDateTime.of(date, time);
 		} else {
 			result = null;
@@ -127,9 +124,8 @@ public class DateU {
 	 * @return The parsed date or null if one cannot be parsed.
 	 */
 	public static LocalDate parseStandardDate(String date) {
-		final Text t = new Text();
-		t.append(date);
-		return date(t);
+		final Parser parser = new Parser(date);
+		return date(parser);
 	}
 
 	/**
@@ -140,9 +136,8 @@ public class DateU {
 	 * @return The parsed time or null if one cannot be parsed.
 	 */
 	public static LocalTime parseStandardTime(String time) {
-		final Text t = new Text();
-		t.append(time);
-		return time(t);
+		final Parser parser = new Parser(time);
+		return time(parser);
 	}
 
 	/*
@@ -216,7 +211,7 @@ public class DateU {
 		time(time.getHour(), time.getMinute(), time.getSecond(), time.getNano(), t);
 	}
 
-	private static LocalDate date(Text t) {
+	private static LocalDate date(Parser parser) {
 		final LocalDate result;
 		// digit '/' digit '/' digit
 
@@ -224,23 +219,23 @@ public class DateU {
 		final Integer month;
 		final Integer day;
 
-		final int save = t.cursor();
-		if((year = digit(t, 4, 4)) != null
-				&& t.consume('/') && (month = digit(t, 1, 2)) != null
-				&& t.consume('/') && (day = digit(t, 1, 2)) != null) {
+		final int save = parser.cursor();
+		if((year = digit(parser, 4, 4)) != null
+				&& parser.consume('/') && (month = digit(parser, 1, 2)) != null
+				&& parser.consume('/') && (day = digit(parser, 1, 2)) != null) {
 			result = LocalDate.of(
 					year.intValue(),
 					month.intValue(),
 					day.intValue());
 		} else {
 			result = null;
-			t.setCursor(save);
+			parser.setCursor(save);
 		}
 
 		return result;
 	}
 
-	private static LocalTime time(Text t) {
+	private static LocalTime time(Parser parser) {
 		final LocalTime result;
 		// digit{2} ':' digit{2} ( ':' digit{2} ( '.' digit{2} )? )?
 
@@ -249,45 +244,56 @@ public class DateU {
 		Integer second = null;
 		int millisecond = 0;
 
-		final int save = t.cursor();
-		if((hour = digit(t, 2, 3)) != null && t.consume(':') && (minute = digit(t, 2, 2)) != null) {
-			final int save1 = t.cursor();
-			if(t.consume(':') && (second = digit(t, 2, 2)) != null) {
-				final int save2 = t.cursor();
-				if(t.consume('.') && t.consumeAscii(Text.ASCII_0_9, 1, 3)) {
-					final String s = (t.getConsumed() + "00").substring(0, 3);
+		final int save = parser.cursor();
+		if((hour = digit(parser, 2, 3)) != null && parser.consume(':') && (minute = digit(parser, 2, 2)) != null) {
+			final int save1 = parser.cursor();
+			if(parser.consume(':') && (second = digit(parser, 2, 2)) != null) {
+				final int save2 = parser.cursor();
+				if(parser.consume('.') && parser.consumeAscii(Parser.ASCII_0_9, 1, 3)) {
+					final String s = (parser.getConsumed() + "00").substring(0, 3);
 					for(int i = 0; i < 3; i++) {
 						millisecond = millisecond * 10 + s.charAt(i) - '0';
 					}
 				} else {
-					t.setCursor(save2);
+					parser.setCursor(save2);
 				}
 			} else {
-				t.setCursor(save1);
+				parser.setCursor(save1);
 			}
 
 			result = LocalTime.of(
 					hour.intValue(),
 					minute.intValue(),
 					second == null ? 0 : second.intValue(),
-							millisecond * 1_000_000);
+					millisecond * 1_000_000);
 		} else {
 			result = null;
-			t.setCursor(save);
+			parser.setCursor(save);
 		}
 
 		return result;
 	}
 
-	private static Integer digit(Text t, int n, int m) {
+	/**
+	 * Parse between n and m digits inclusively
+	 *
+	 * @param parser
+	 *            Where to parse from
+	 * @param n
+	 *            minimum number of digits
+	 * @param m
+	 *            maximum number of digits
+	 * @return An Integer or null if one could not be parserd
+	 */
+	private static Integer digit(Parser parser, int n, int m) {
 		final Integer result;
 
-		final int start = t.cursor();
-		if(t.consumeAscii(Text.ASCII_0_9, n, m)) {
-			final int count = t.cursor() - start;
+		final int start = parser.cursor();
+		if(parser.consumeAscii(Parser.ASCII_0_9, n, m)) {
+			final int count = parser.cursor() - start;
 			int total = 0;
 			for(int i = 0; i < count; i++) {
-				total = total * 10 + t.charAt(start + i) - '0';
+				total = total * 10 + parser.charAt(start + i) - '0';
 			}
 			result = new Integer(total);
 		} else {
